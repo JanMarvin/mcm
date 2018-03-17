@@ -206,9 +206,9 @@ mcm <- function(name, lang = "en") {
         avail = as.integer(avTable["Available items:"]),
         price = price,
         url = url,
+        name = name,
         stringsAsFactors = FALSE
       )
-      z <- cbind(z, name)
 
       pages[[i]] <- z
 
