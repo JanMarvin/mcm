@@ -122,7 +122,7 @@ mcm <- function(name, lang = "en") {
       valType <- page %>% html_nodes(css = td_valType) %>%
         html_text()
       cardsAv <- page %>% html_nodes(css = td_cardsAv) %>%
-        html_text()
+        html_text() %>% as.integer()
       price   <- page %>% html_nodes(css = td_price) %>%
         html_text() %>% prc()
 
@@ -397,7 +397,7 @@ mcm_set <- function(name, lang = "en") {
     engName <- page %>% html_nodes(css = ".col_3") %>%
       html_text()
     cardsAv <- page %>% html_nodes(css = ".col_4") %>%
-      html_text()
+      html_text() %>% as.integer()
     price   <- page %>% html_nodes(css = ".col_5") %>%
       html_text() %>% prc()
 
