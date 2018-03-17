@@ -4,10 +4,12 @@
 \alias{mcm_card}
 \title{searc mcm for card details}
 \usage{
-mcm_card(x, ...)
+mcm_card(x, lang = "en", ...)
 }
 \arguments{
 \item{x}{mcm() result}
+
+\item{lang}{language "en" or "de"}
 
 \item{...}{for txtProgressBar}
 }

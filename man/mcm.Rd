@@ -4,10 +4,12 @@
 \alias{mcm}
 \title{search mcm for cards}
 \usage{
-mcm(name)
+mcm(name, lang = "en")
 }
 \arguments{
 \item{name}{name of card to look for}
+
+\item{lang}{language en or de}
 }
 \description{
 search mcm for cards

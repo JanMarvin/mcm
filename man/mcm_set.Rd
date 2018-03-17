@@ -4,10 +4,12 @@
 \alias{mcm_set}
 \title{searc mcm for card sets}
 \usage{
-mcm_set(name)
+mcm_set(name, lang = "en")
 }
 \arguments{
 \item{name}{uniquely identifiing set name}
+
+\item{lang}{not yet implemented}
 }
 \description{
 searc mcm for card sets
