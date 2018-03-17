@@ -209,6 +209,9 @@ mcm <- function(name, lang = "en") {
         name = name,
         stringsAsFactors = FALSE
       )
+      nam <- names(z)
+      nam[nam == "name"] <- lang
+      names(z)  <- nam
 
       pages[[i]] <- z
 
