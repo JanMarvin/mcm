@@ -1,0 +1,6 @@
+card_is_rare <- ".infoTableSingles .cell_0_1 .icon"
+card_numbers <- ".infoTableSingles .cell_1_1"
+card_erw_typ <- ".infoTableSingles .expansionIcon"
+card_avTable <- "table.availTable"
+card_first_price <- "#articleTableDividerRow+ tr .algn-r"
+card_img <- "#prodImageId"

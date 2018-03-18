@@ -16,7 +16,10 @@ search mcm for cards
 }
 \examples{
 \dontrun{
-card <- mcm("Avatar der Entschlossenen")
+card <- mcm("Black Lotus")
+card
+
+card <- mcm("Avatar der Entschlossenen", lang = "de")
 card
 }
 }
