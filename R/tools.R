@@ -5,7 +5,6 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @param x character vector
 #' @importFrom magrittr "%>%"
 #' @importFrom stringi stri_extract_all_regex
-#' @export
 extr <- function(x) {
   x %>% gsub(pattern = "\\\\'", replacement = "", x = .) %>%
     stri_extract_all_regex(., "(?<=').*?(?=')") %>% unlist()
@@ -15,7 +14,6 @@ extr <- function(x) {
 #' @param x character vector
 #' @importFrom magrittr "%>%"
 #' @importFrom stringi stri_extract_all_regex
-#' @export
 extr2 <- function(x) {
   x %>% stri_extract_all_regex(., "(?<=\\().*?(?=\\))") %>% unlist()
 }
@@ -24,7 +22,6 @@ extr2 <- function(x) {
 #' @param x character vector to convert to numeric
 #' @importFrom magrittr "%>%"
 #' @import rlang
-#' @export
 prc <- function(x) {
 
   # convert price to numeric
@@ -37,4 +34,14 @@ prc <- function(x) {
   x %<>%  sub(",", ".", ., fixed = TRUE) %>% as.numeric()
 
   x
+}
+
+#' check if page is loaded
+#' @param x default remDr driver
+#' @importFrom magrittr "%>%"
+#' @importFrom rvest read_html
+#' @import rlang
+pageloaded <- function(x = remDr) {
+  x$getPageSource() %>%  unlist() %>% read_html() %>%
+    grepl(pattern = "searchFor") %>% isTRUE()
 }

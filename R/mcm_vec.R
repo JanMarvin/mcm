@@ -22,6 +22,8 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE) {
   rD <- rsDriver(extraCapabilities = eCaps, check = FALSE, verbose = FALSE,
                  chromever = NULL, geckover = NULL,
                  phantomver = NULL, iedrver = NULL)
+  # rD <- rsDriver(chromever = NULL, geckover = NULL,
+  #                phantomver = NULL, iedrver = NULL)
   remDr <- rD[["client"]]
 
   cards <- vector(mode = "list", length = length(vec))
@@ -30,20 +32,25 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE) {
   # create progressbar
   if (progress) {
     pb <- txtProgressBar(style = 3)
-    cc <- 0
   }
 
+  cc <- 0
 
   # loop over all cards in vector
   for (card in vec) {
 
+    cc <- cc +1
+
     # update progressbar
     if (progress) {
-      cc <- cc +1
       setTxtProgressBar(pb, cc/length(cards))
     }
 
     remDr$navigate(paste0("https://www.cardmarket.com/", lang, "/Magic"))
+
+    # check if page is loaded (we may end up with a completly white page)
+    while (!pageloaded(remDr)) remDr$refresh()
+
     webElem <- remDr$findElement(using = 'name', value = "searchFor")
     webElem$sendKeysToElement(list(card, key = "enter"))
 
@@ -152,6 +159,8 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE) {
         # able to use mcm_card for mcm_vec output, we have to build our own
         # table
 
+        name <- page %>% html_node(".active span") %>%  html_text()
+
         # card information (double not required)
         is_rare <- page %>% html_node(card_is_rare) %>%
           html_attr("onmouseover") %>% extr()
@@ -159,7 +168,7 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE) {
         numbers <- page %>% html_node(card_numbers) %>%
           html_text() %>% as.character()
 
-        erw_typ <- page %>% html_nodes(car_erw_typ) %>%
+        erw_typ <- page %>% html_nodes(card_erw_typ) %>%
           html_attr("title") %>% extr2() %>% paste(collapse = ", ")
 
         # get price and foil information

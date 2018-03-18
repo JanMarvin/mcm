@@ -130,20 +130,24 @@ mcm <- function(name, lang = "en") {
 
     } else { # end good
 
-      # create our own table
+      # search table put us to a card instead of a search result table. to be
+      # able to use mcm_card for mcm_vec output, we have to build our own
+      # table
+
+      name <- page %>% html_node(".active span") %>%  html_text()
 
       # card information (double not required)
-      is_rare <- page %>% html_node(".infoTableSingles .cell_0_1 .icon") %>%
+      is_rare <- page %>% html_node(card_is_rare) %>%
         html_attr("onmouseover") %>% extr()
 
-      numbers <- page %>% html_node(".infoTableSingles .cell_1_1") %>%
+      numbers <- page %>% html_node(card_numbers) %>%
         html_text() %>% as.character()
 
-      erw_typ <- page %>% html_nodes(css = ".infoTableSingles .expansionIcon") %>%
+      erw_typ <- page %>% html_nodes(card_erw_typ) %>%
         html_attr("title") %>% extr2() %>% paste(collapse = ", ")
 
       # get price and foil information
-      avTable <- page %>% html_node("table.availTable") %>% html_table()
+      avTable <- page %>% html_node(card_avTable) %>% html_table()
       avTable$X2 %<>% prc()
 
       rownames(avTable) <- avTable$X1
@@ -151,12 +155,12 @@ mcm <- function(name, lang = "en") {
       avTable %<>% t() %>% as.data.frame()
 
       price <- page %>%
-        html_nodes(css = "#articleTableDividerRow+ tr .algn-r") %>%
+        html_nodes(css = card_first_price) %>%
         html_text() %>% prc()
 
       url <- url %>% unlist() %>%  gsub("https://www.cardmarket.com", "", x=.)
 
-      img <- page %>% html_node("#prodImageId") %>% html_attr("src")
+      img <- page %>% html_node(card_img) %>% html_attr("src")
 
       z <- data.frame(
         img = img,
