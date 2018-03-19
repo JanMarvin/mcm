@@ -1,6 +1,7 @@
 #' search mcm for vector of cards
 #' @param vec character vector of cards to look for
 #' @param lang language en or de
+#' @param debug extract number
 #' @examples
 #' \dontrun{
 #' cards <- mcm_vec(c("Sol Ring", "Black Lotus"))
@@ -11,7 +12,7 @@
 #' @importFrom rvest html_node html_nodes html_text html_attr html_table
 #' @importFrom xml2 read_html
 #' @export
-mcm_vec <- function(vec, lang = "en", progress = TRUE) {
+mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
 
   if (!is.character(vec))
     stop("Input must be a character vector.")
@@ -40,6 +41,9 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE) {
   for (card in vec) {
 
     cc <- cc +1
+
+    if (debug)
+      cc <<- cc
 
     # update progressbar
     if (progress) {
@@ -151,8 +155,6 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE) {
         )
         z <- cbind(z, name)
 
-        pages[[i]] <- z
-
       } else { # end good
 
         # search table put us to a card instead of a search result table. to be
@@ -203,9 +205,9 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE) {
         nam[nam == "name"] <- lang
         names(z)  <- nam
 
-        pages[[i]] <- z
-
       }
+
+      pages[[i]] <- z
 
 
       nextpage <- FALSE
