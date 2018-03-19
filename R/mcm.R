@@ -1,5 +1,5 @@
 #' search mcm for cards
-#' @param name name of card to look for
+#' @param name card of card to look for
 #' @param lang language en or de
 #' @examples
 #' \dontrun{
@@ -14,7 +14,7 @@
 #' @importFrom rvest html_node html_nodes html_text html_attr html_table
 #' @importFrom xml2 read_html
 #' @export
-mcm <- function(name, lang = "en") {
+mcm <- function(card, lang = "en") {
   eCaps <- list(chromeOptions = list(
     args = c('--headless', '--disable-gpu', '--window-size=1280,800')
   ))
@@ -27,7 +27,7 @@ mcm <- function(name, lang = "en") {
 
   webElem <- remDr$findElement(using = 'name', value = "searchFor")
 
-  webElem$sendKeysToElement(list(name, key = "enter"))
+  webElem$sendKeysToElement(list(card, key = "enter"))
 
   pages <- list()
 
@@ -126,8 +126,6 @@ mcm <- function(name, lang = "en") {
       )
       z <- cbind(z, name)
 
-      pages[[i]] <- z
-
     } else { # end good
 
       # search table put us to a card instead of a search result table. to be
@@ -178,9 +176,9 @@ mcm <- function(name, lang = "en") {
       nam[nam == "name"] <- lang
       names(z)  <- nam
 
-      pages[[i]] <- z
-
     }
+
+    pages[[i]] <- z
 
 
     nextpage <- FALSE
@@ -205,6 +203,8 @@ mcm <- function(name, lang = "en") {
 
 
   page <- do.call("rbind", pages)
+
+  page$typ <- card
 
   page
 }
