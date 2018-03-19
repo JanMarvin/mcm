@@ -24,11 +24,15 @@ extr2 <- function(x) {
 #' @import rlang
 prc <- function(x) {
 
-  # convert price to numeric
-  is_price <- x %>% grepl(pattern = "\u20ac") # euro sign
+  # convert price to numeric # euro sign
+  is_price <- x %>% grepl(pattern = "\u20ac", x = .) %>% sapply(., isTRUE) %>%
+    unlist()
   is_miss  <- x %>% grepl(pattern = "-") | x %>% grepl(pattern = "N/A")
 
-  x[is_price] %<>% substr(., 1, nchar(.)-2)
+  # strsplit (some cards have price per unit)
+  x[is_price] %<>% sapply(.,
+                          FUN = function(x) strsplit(x, "\u20ac")[[1]][1]) %>%
+    trimws()
   x[is_miss] <- NA
 
   x %<>%  sub(",", ".", ., fixed = TRUE) %>% as.numeric()
@@ -39,9 +43,40 @@ prc <- function(x) {
 #' check if page is loaded
 #' @param x default remDr driver
 #' @importFrom magrittr "%>%"
-#' @importFrom rvest read_html
-#' @import rlang
+#' @importFrom xml2 read_html
 pageloaded <- function(x = remDr) {
   x$getPageSource() %>%  unlist() %>% read_html() %>%
     grepl(pattern = "searchFor") %>% isTRUE()
+}
+
+#' extract script information from website
+#' @param sc a javascript containing data
+#' @importFrom magrittr "%>%"
+extrsc <- function(sc) {
+
+  # split on ;var to remove some nonsense
+  sc <- strsplit(sc, ";var ") %>% unlist()
+
+  # select the chartData part (should be two)
+  sc <- sc[grepl("chartData =", sc)]
+
+  # remove parentheses
+  sc <- gsub(pattern = "\"", "", sc)
+
+  # split to get the data parts
+  sc <- strsplit(sc, ":\\[")[[1]]
+
+  # remove everything after a closing bracket
+  sc <- gsub("\\].*","",sc)[c(2,4,5)]
+
+
+  # convert the data parts to vectors
+  dates <- sc[1] %>% strsplit(., ",") %>% unlist() %>% as.Date("%d.%m.%y")
+  reals <- sc[2] %>% strsplit(., ",") %>% unlist() %>% as.numeric()
+  preds <- sc[3] %>% strsplit(., ",") %>% unlist() %>% as.numeric()
+
+  # return
+  sc <- data.frame(dates = dates, real = reals, pred = preds)
+
+  sc
 }

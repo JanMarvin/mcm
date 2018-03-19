@@ -29,6 +29,7 @@ mcm_card <- function(x, lang = "en", ...) {
   nums <- seq_along(x$url)
 
   pages <- list()
+  p_dev <- list()
 
   pb <- txtProgressBar(..., style = 3)
 
@@ -39,6 +40,9 @@ mcm_card <- function(x, lang = "en", ...) {
     url <- paste0("https://www.cardmarket.com", x$url[i])
 
     page <- url %>% read_html()
+
+    # car name
+    name <- page %>% html_node(".active span") %>%  html_text()
 
     # card information (double not required)
     is_rare <- page %>% html_node(".infoTableSingles .cell_0_1 .icon") %>%
@@ -66,7 +70,17 @@ mcm_card <- function(x, lang = "en", ...) {
     avTable$X1 <- NULL
     avTable %<>% t()
 
+    hasnofoil <- page %>% html_node("#foil") %>% is.na()
 
+    sc_nonfoil <- sc_foil <- NA
+
+    if (!hasnofoil) {
+      sc_foil <- page %>% html_node("#foil script") %>%
+        html_text() %>% extrsc()
+    }
+
+    sc_nonfoil <- page %>% html_node("#nonfoil script") %>%
+      html_text() %>% extrsc()
 
     # rules
     rules <- page %>% html_node(tb_rulesText) %>% html_text()
@@ -82,12 +96,16 @@ mcm_card <- function(x, lang = "en", ...) {
       stringsAsFactors = FALSE
     )
 
+    p_dev[[name]] <- list(nonfoil = sc_nonfoil,
+                          foil = sc_foil)
+
     pages[[i]] <- z
   }
   close(pb)
 
   # full information is not always available
   page <- bind_rows(pages)
+  attr(page, "pdev")  <- p_dev
 
   page
 }
