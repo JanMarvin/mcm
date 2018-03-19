@@ -228,6 +228,10 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
 
     page <- do.call("rbind", pages)
 
+    # if card is not found (or mcm produces nothing)
+    if (nrow(page)>0)
+      page$typ <- card
+
     cards[[card]] <- page
 
   }
