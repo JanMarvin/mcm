@@ -4,10 +4,10 @@
 \alias{pageloaded}
 \title{check if page is loaded}
 \usage{
-pageloaded()
+pageloaded(x = remDr)
 }
 \arguments{
-\item{x}{character vector to convert to numeric}
+\item{x}{default remDr driver}
 }
 \description{
 check if page is loaded

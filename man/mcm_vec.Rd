@@ -4,12 +4,14 @@
 \alias{mcm_vec}
 \title{search mcm for vector of cards}
 \usage{
-mcm_vec(vec, lang = "en", progress = TRUE)
+mcm_vec(vec, lang = "en", progress = TRUE, debug = FALSE)
 }
 \arguments{
 \item{vec}{character vector of cards to look for}
 
 \item{lang}{language en or de}
+
+\item{debug}{extract number}
 }
 \description{
 search mcm for vector of cards
