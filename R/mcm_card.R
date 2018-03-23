@@ -14,7 +14,7 @@
 #' @importFrom magrittr "%>%" "%<>%"
 #' @importFrom rvest html_node html_nodes html_text html_attr html_table
 #' @importFrom utils txtProgressBar setTxtProgressBar
-#' @importFrom xml2 read_html
+#' @importFrom xml2 read_html xml_missing
 #' @export
 mcm_card <- function(x, lang = "en", ...) {
 
@@ -39,7 +39,16 @@ mcm_card <- function(x, lang = "en", ...) {
 
     url <- paste0("https://www.cardmarket.com", x$url[i])
 
-    page <- url %>% read_html()
+    # start while loop
+    has_table <- xml_missing()
+
+    # try to prevent html_table on xml_missing
+    # most likely a wrongfully imported page. re-read the file. If this is not
+    # enough, reading should be stopped at this variable
+    while (is.na(has_table)) {
+      page <- url %>% read_html()
+      has_table <- page %>% html_node("table.availTable")
+    }
 
     # car name
     name <- page %>% html_node(".active span") %>%  html_text()
@@ -63,12 +72,19 @@ mcm_card <- function(x, lang = "en", ...) {
       html_attr("title") %>% extr2() %>% paste(collapse = ", ")
 
     # get price and foil information
-    avTable <- page %>% html_node("table.availTable") %>% html_table()
+    has_table <- page %>% html_node("table.availTable")
+
+
+    avTable <- page %>% html_node("table.availTable") %>%
+      html_table()
     avTable$X2 %<>% prc()
 
     rownames(avTable) <- avTable$X1
     avTable$X1 <- NULL
     avTable %<>% t()
+
+
+    hasnoall <- page %>% html_node("#foil") %>% is.na()
 
     hasnofoil <- page %>% html_node("#foil") %>% is.na()
 
@@ -79,8 +95,10 @@ mcm_card <- function(x, lang = "en", ...) {
         html_text() %>% extrsc()
     }
 
-    sc_nonfoil <- page %>% html_node("#nonfoil script") %>%
-      html_text() %>% extrsc()
+    if (!hasnoall) {
+      sc_nonfoil <- page %>% html_node("#nonfoil script") %>%
+        html_text() %>% extrsc()
+    }
 
     # rules
     rules <- page %>% html_node(tb_rulesText) %>% html_text()

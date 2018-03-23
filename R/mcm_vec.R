@@ -94,10 +94,14 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
       # check if we are directed to (i) a SearchResult page or (ii) a card page
       # we aim for the i, if we are get ii, we have to build ourself a similar
       # result, so that afterwards we still can use mcm_card
-      good <- url %>% unlist() %>% grepl("showSearchResult", x = .) %>%
+      searchPage <- url %>% unlist() %>% grepl("showSearchResult", x = .) %>%
+        isTRUE()
+      cardPage <- url %>% unlist() %>% grepl("availTable", x = .) %>%
         isTRUE()
 
-      if (good) {
+      z <- NULL
+
+      if (searchPage) {
 
         # pull the content of the entire table
         img <- page %>% html_nodes(css = "td:nth-child(1) .icon") %>%
@@ -121,7 +125,7 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
         price   <- page %>% html_nodes(css = td_price) %>%
           html_text() %>% prc()
 
-        url <- page %>% html_nodes(css = td_engName) %>%
+        url_page <- page %>% html_nodes(css = td_engName) %>%
           html_attr("href")
 
 
@@ -150,16 +154,14 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
           type = valType[is_card],
           avail = cardsAv[is_card],
           price = price[is_card],
-          url = url[is_card],
+          url = url_page[is_card],
           stringsAsFactors = FALSE
         )
         z <- cbind(z, name)
 
-      } else { # end good
+      }
 
-        # search table put us to a card instead of a search result table. to be
-        # able to use mcm_card for mcm_vec output, we have to build our own
-        # table
+      if (cardPage) { # end good
 
         name <- page %>% html_node(".active span") %>%  html_text()
 
@@ -229,7 +231,7 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
     page <- do.call("rbind", pages)
 
     # if card is not found (or mcm produces nothing)
-    if (nrow(page)>0)
+    if (NROW(page)>0)
       page$typ <- card
 
     cards[[card]] <- page

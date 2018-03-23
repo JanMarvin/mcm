@@ -46,7 +46,9 @@ prc <- function(x) {
 #' @importFrom xml2 read_html
 pageloaded <- function(x = remDr) {
   x$getPageSource() %>%  unlist() %>% read_html() %>%
-    grepl(pattern = "searchFor") %>% isTRUE()
+    grepl(pattern = "searchFor") %>% isTRUE() |
+    x$getPageSource() %>%  unlist() %>% read_html() %>%
+    grepl(pattern = "availTable") %>% isTRUE()
 }
 
 #' extract script information from website
