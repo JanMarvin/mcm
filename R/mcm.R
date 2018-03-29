@@ -1,5 +1,5 @@
 #' search mcm for cards
-#' @param name card of card to look for
+#' @param card card of card to look for
 #' @param lang language en or de
 #' @examples
 #' \dontrun{

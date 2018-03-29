@@ -7,9 +7,9 @@
 mcm(card, lang = "en")
 }
 \arguments{
-\item{lang}{language en or de}
+\item{card}{card of card to look for}
 
-\item{name}{card of card to look for}
+\item{lang}{language en or de}
 }
 \description{
 search mcm for cards

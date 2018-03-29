@@ -11,6 +11,8 @@ mcm_vec(vec, lang = "en", progress = TRUE, debug = FALSE)
 
 \item{lang}{language en or de}
 
+\item{progress}{enable/disable the creation of a progressbar}
+
 \item{debug}{extract number}
 }
 \description{

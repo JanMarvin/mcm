@@ -1,6 +1,7 @@
 #' search mcm for vector of cards
 #' @param vec character vector of cards to look for
 #' @param lang language en or de
+#' @param progress enable/disable the creation of a progressbar
 #' @param debug extract number
 #' @examples
 #' \dontrun{
@@ -10,7 +11,7 @@
 #' @importFrom magrittr "%>%" "%<>%"
 #' @importFrom RSelenium rsDriver
 #' @importFrom rvest html_node html_nodes html_text html_attr html_table
-#' @importFrom xml2 read_html
+#' @importFrom xml2 read_html write_html
 #' @export
 mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
 
@@ -96,12 +97,12 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
       # result, so that afterwards we still can use mcm_card
       searchPage <- url %>% unlist() %>% grepl("showSearchResult", x = .) %>%
         isTRUE()
-      cardPage <- url %>% unlist() %>% grepl("availTable", x = .) %>%
+      cardPage <- file %>% unlist() %>% grepl("availTable", x = .) %>%
         isTRUE()
 
       z <- NULL
 
-      if (searchPage) {
+      if (searchPage) { # begin searchPage
 
         # pull the content of the entire table
         img <- page %>% html_nodes(css = "td:nth-child(1) .icon") %>%
@@ -159,9 +160,23 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
         )
         z <- cbind(z, name)
 
-      }
+      } # end searchPage
 
-      if (cardPage) { # end good
+      if (cardPage) { # begin cardPage
+
+        url <- url %>% unlist() %>%  gsub("https://www.cardmarket.com", "", x=.)
+
+        # create folder structure for results
+        mcm_date()
+        url_path <- url %>% dirname()
+
+        ifelse(!dir.exists(file.path(paste0(".",url_path))),
+               dir.create(file.path(paste0(".",url_path)), recursive = TRUE),
+               FALSE)
+
+        # save page to folder structure
+        suppressWarnings(write_html(x = page,
+                                   file = paste0(".",url)))
 
         name <- page %>% html_node(".active span") %>%  html_text()
 
@@ -187,8 +202,6 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
           html_nodes(css = card_first_price) %>%
           html_text() %>% prc()
 
-        url <- url %>% unlist() %>%  gsub("https://www.cardmarket.com", "", x=.)
-
         img <- page %>% html_node(card_img) %>% html_attr("src")
 
         z <- data.frame(
@@ -207,7 +220,7 @@ mcm_vec <- function(vec, lang = "en", progress = TRUE, debug = FALSE) {
         nam[nam == "name"] <- lang
         names(z)  <- nam
 
-      }
+      } # end cardPage
 
       pages[[i]] <- z
 

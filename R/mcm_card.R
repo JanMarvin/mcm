@@ -14,7 +14,7 @@
 #' @importFrom magrittr "%>%" "%<>%"
 #' @importFrom rvest html_node html_nodes html_text html_attr html_table
 #' @importFrom utils txtProgressBar setTxtProgressBar
-#' @importFrom xml2 read_html xml_missing
+#' @importFrom xml2 read_html xml_missing write_html
 #' @export
 mcm_card <- function(x, lang = "en", ...) {
 
@@ -37,17 +37,43 @@ mcm_card <- function(x, lang = "en", ...) {
   for (i in nums) {
     setTxtProgressBar(pb, i/max(nums))
 
+    # check if folder structrure is available
+    pos_loc_path <- paste0("~/mcm/", Sys.Date(), x$url[i])
+    card_loaded <- file.exists(pos_loc_path)
+
+
     url <- paste0("https://www.cardmarket.com", x$url[i])
 
-    # start while loop
-    has_table <- xml_missing()
+    # check if card can be read from file or web
+    if (!card_loaded) {
 
-    # try to prevent html_table on xml_missing
-    # most likely a wrongfully imported page. re-read the file. If this is not
-    # enough, reading should be stopped at this variable
-    while (is.na(has_table)) {
-      page <- url %>% read_html()
-      has_table <- page %>% html_node("table.availTable")
+      # start while loop
+      has_table <- xml_missing()
+
+      # try to prevent html_table on xml_missing
+      # most likely a wrongfully imported page. re-read the file. If this is not
+      # enough, reading should be stopped at this variable
+      while (is.na(has_table)) {
+        page <- url %>% read_html()
+        has_table <- page %>% html_node("table.availTable")
+      }
+
+      url <- url %>% gsub("https://www.cardmarket.com", "", x=.)
+
+      mcm_date()
+
+      url_path <- url %>% dirname()
+
+      ifelse(!dir.exists(file.path(paste0(".",url_path))),
+             dir.create(file.path(paste0(".",url_path)), recursive = TRUE),
+             FALSE)
+
+      suppressWarnings(write_html(x = page,
+                                 file = paste0(".",url)))
+
+
+    } else {
+      page <- pos_loc_path %>% read_html()
     }
 
     # car name

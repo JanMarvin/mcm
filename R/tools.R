@@ -82,3 +82,30 @@ extrsc <- function(sc) {
 
   sc
 }
+
+
+#' create mcm_dir and setwd into it. for now the default dir is ~/mcm
+mcm_dir <- function () {
+  dir_path <- path.expand("~/mcm/")
+
+  ifelse(!dir.exists(file.path(dir_path)),
+         dir.create(file.path(dir_path), recursive = TRUE),
+         FALSE)
+
+  setwd(file.path(dir_path))
+}
+
+
+#' create mcm_date and setwd into it
+mcm_date <- function () {
+
+  mcm_dir()
+
+  dir_path <- path.expand(paste0("~/mcm/", Sys.Date()))
+
+  ifelse(!dir.exists(file.path(dir_path)),
+         dir.create(file.path(dir_path), recursive = TRUE),
+         FALSE)
+
+  setwd(file.path(dir_path))
+}
